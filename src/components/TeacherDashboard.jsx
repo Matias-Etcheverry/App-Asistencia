@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Download, RefreshCcw, Users, QrCode, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import * as XLSX from 'xlsx';
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeCanvas } from 'qrcode.react';
 
 const TeacherDashboard = () => {
     const [attendances, setAttendances] = useState([]);
@@ -134,6 +134,22 @@ const TeacherDashboard = () => {
         }
     };
 
+    const downloadQR = () => {
+        const canvas = document.getElementById('qr-canvas');
+        if (!canvas) return;
+
+        const pngUrl = canvas
+            .toDataURL('image/png')
+            .replace('image/png', 'image/octet-stream');
+
+        let downloadLink = document.createElement('a');
+        downloadLink.href = pngUrl;
+        downloadLink.download = 'QR_Asistencia.png';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    };
+
     return (
         <div className="w-full max-w-4xl mx-auto p-6 md:p-8 glass rounded-2xl relative">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -225,10 +241,19 @@ const TeacherDashboard = () => {
 
                         <div className="p-6 flex flex-col items-center print-qr-container">
                             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-4">
-                                <QRCodeSVG
+                                <QRCodeCanvas
+                                    id="qr-canvas"
                                     value={`${window.location.origin}/?checkin=true`}
                                     size={300}
                                     level="H"
+                                    imageSettings={{
+                                        src: "/bailarina.svg",
+                                        x: undefined,
+                                        y: undefined,
+                                        height: 60,
+                                        width: 60,
+                                        excavate: true,
+                                    }}
                                 />
                             </div>
 
@@ -237,14 +262,14 @@ const TeacherDashboard = () => {
                             </p>
 
                             <p className="text-xs text-text-muted text-center mt-4 print-hide">
-                                Imprime este único QR y pégalo en la puerta de entrada. Los alumnos lo escanearán para elegir su clase y registrarse.
+                                Descarga e imprime este único QR. Los alumnos lo escanearán para elegir su clase y registrarse.
                             </p>
 
                             <button
-                                onClick={() => window.print()}
-                                className="mt-6 w-full py-2.5 bg-accent hover:bg-accent-hover text-white font-medium rounded-lg transition-colors text-sm shadow-md print-hide"
+                                onClick={downloadQR}
+                                className="mt-6 w-full py-2.5 bg-accent hover:bg-accent-hover text-white font-medium rounded-lg transition-colors text-sm shadow-md print-hide flex items-center justify-center gap-2"
                             >
-                                Imprimir Código QR
+                                <Download size={18} /> Descargar Código QR
                             </button>
                         </div>
                     </div>

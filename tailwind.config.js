@@ -11,9 +11,9 @@ export default {
         'surface': '#FFFFFF',
         'text-main': '#0F172A',
         'text-muted': '#64748B',
-        'accent': '#2563EB',      // Professional Royal Blue
-        'accent-hover': '#1D4ED8',
-        'accent-dark': '#0F172A', // Slate 900
+        'accent': '#badc58',      // Pastel Green / Lime
+        'accent-hover': '#a3cb38',
+        'accent-dark': '#6ab04c',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

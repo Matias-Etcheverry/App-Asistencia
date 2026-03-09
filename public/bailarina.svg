@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- A beautiful simple ballerina silhouette placeholder -->
+  <path d="M50 10 C53 10 55 12 55 15 C55 18 53 20 50 20 C47 20 45 18 45 15 C45 12 47 10 50 10 Z" fill="#000"/>
+  <path d="M47 22 L53 22 L65 40 L62 43 L54 30 L55 50 L70 60 L68 64 L50 55 L32 64 L30 60 L45 50 L46 30 L38 43 L35 40 Z" fill="#000"/>
+  <path d="M48 55 L40 90 L44 90 L52 55 Z" fill="#000"/>
+  <path d="M52 55 L65 85 L69 83 L55 52 Z" fill="#000"/>
+</svg>
