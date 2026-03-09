@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans bg-bg-primary text-text-main antialiased;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-surface/90 backdrop-blur-2xl border border-slate-200/60 shadow-sm;
+  }
+
+  .glass-dark {
+    @apply bg-white border border-slate-200 shadow-sm;
+  }
+}
+
+/* Base styles for scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {}
+
+/* Print Styles for QR Code */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print-qr-container,
+  .print-qr-container * {
+    visibility: visible;
+  }
+
+  .print-qr-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 4rem;
+  }
+
+  .print-hide {
+    display: none !important;
+  }
+}
