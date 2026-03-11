@@ -284,8 +284,8 @@ const TeacherDashboard = () => {
                                         src: "/bailarina_nueva.png",
                                         x: undefined,
                                         y: undefined,
-                                        height: 60,
-                                        width: 60,
+                                        height: 80,
+                                        width: 80,
                                         excavate: true,
                                     }}
                                 />
