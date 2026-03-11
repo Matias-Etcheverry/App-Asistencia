@@ -8,6 +8,9 @@ const TeacherDashboard = () => {
     const [attendances, setAttendances] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showQRModal, setShowQRModal] = useState(false);
+    const [selectedProfesor, setSelectedProfesor] = useState('Todos');
+
+    const profesores = ['Todos', 'Maria Clara', 'Nahuel Muñoz Storni'];
 
     const fetchAttendances = async () => {
         setLoading(true);
@@ -18,12 +21,18 @@ const TeacherDashboard = () => {
             const tomorrow = new Date(today);
             tomorrow.setDate(tomorrow.getDate() + 1);
 
-            const { data, error } = await supabase
+            let query = supabase
                 .from('asistencias')
                 .select('*')
                 .gte('created_at', today.toISOString())
                 .lt('created_at', tomorrow.toISOString())
                 .order('created_at', { ascending: false });
+
+            if (selectedProfesor !== 'Todos') {
+                query = query.eq('profesor', selectedProfesor);
+            }
+
+            const { data, error } = await query;
 
             if (error) {
                 console.error("Supabase fetch error:", error);
@@ -61,7 +70,7 @@ const TeacherDashboard = () => {
         return () => {
             supabase.removeChannel(channel);
         };
-    }, []);
+    }, [selectedProfesor]);
 
     const exportToExcel = async () => {
         try {
@@ -73,12 +82,18 @@ const TeacherDashboard = () => {
             const endOfMonth = new Date(startOfMonth);
             endOfMonth.setMonth(endOfMonth.getMonth() + 1);
 
-            const { data: monthAttendances, error } = await supabase
+            let query = supabase
                 .from('asistencias')
                 .select('*')
                 .gte('created_at', startOfMonth.toISOString())
                 .lt('created_at', endOfMonth.toISOString())
                 .order('created_at', { ascending: true });
+
+            if (selectedProfesor !== 'Todos') {
+                query = query.eq('profesor', selectedProfesor);
+            }
+
+            const { data: monthAttendances, error } = await query;
 
             if (error) throw error;
             if (!monthAttendances || monthAttendances.length === 0) {
@@ -91,7 +106,16 @@ const TeacherDashboard = () => {
             const uniqueStudents = [...new Set(monthAttendances.map(a => a.nombre_alumno))].sort();
 
             // 3. Create rows
-            const worksheetData = uniqueStudents.map(studentName => {
+            const worksheetData = [];
+
+            // Add Contenido del Día row
+            const contentRow = { 'Alumno': 'Contenido del Día', 'Clase': '-' };
+            uniqueDates.forEach(date => {
+                contentRow[date] = '';
+            });
+            worksheetData.push(contentRow);
+
+            uniqueStudents.forEach(studentName => {
                 const row = { 'Alumno': studentName };
                 // Also get the main class/professor for context if needed, taking the first known
                 const studentRecords = monthAttendances.filter(a => a.nombre_alumno === studentName);
@@ -108,7 +132,7 @@ const TeacherDashboard = () => {
                     row[recordDate] = 'P';
                 });
 
-                return row;
+                worksheetData.push(row);
             });
 
             // 4. Generate Excel
@@ -161,6 +185,16 @@ const TeacherDashboard = () => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <select
+                        value={selectedProfesor}
+                        onChange={(e) => setSelectedProfesor(e.target.value)}
+                        className="px-3 py-2 rounded-lg bg-surface border border-slate-200 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all shadow-sm"
+                    >
+                        {profesores.map(p => (
+                            <option key={p} value={p}>{p}</option>
+                        ))}
+                    </select>
+
                     <button
                         onClick={fetchAttendances}
                         className="p-2.5 bg-surface border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors text-text-muted hover:text-text-main flex-shrink-0"

@@ -9,17 +9,18 @@ const StudentCheckIn = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
 
-    const classes = [
-        'Danza Clásica',
-        'Danza Contemporánea',
-        'Jazz',
-        'Iniciación a la Danza'
-    ];
+    const teacherData = {
+        'Maria Clara': [
+            'Danza Contemporánea',
+            'Elongación Consciente'
+        ],
+        'Nahuel Muñoz Storni': [
+            'Canto'
+        ]
+    };
 
-    const profesores = [
-        'Maria Clara',
-        'Matias Etcheverry'
-    ];
+    const profesores = Object.keys(teacherData);
+    const classes = selectedProfesor ? teacherData[selectedProfesor] : [];
 
     // Read URL parameters on mount
     useEffect(() => {
