@@ -247,7 +247,7 @@ const TeacherDashboard = () => {
                                     size={300}
                                     level="H"
                                     imageSettings={{
-                                        src: "/bailarina.svg",
+                                        src: "/bailarina_nueva.png",
                                         x: undefined,
                                         y: undefined,
                                         height: 60,
