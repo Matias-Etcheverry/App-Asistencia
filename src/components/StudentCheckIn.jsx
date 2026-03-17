@@ -16,7 +16,8 @@ const StudentCheckIn = () => {
         ],
         'Nahuel Muñoz Storni': [
             'Canto',
-            'Viento de Tarde'
+            'Viento de Tarde',
+            'Coro Municipal'
         ]
     };
 
