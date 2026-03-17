@@ -42,7 +42,7 @@ function App() {
     if (isCheckinRoute) return <StudentCheckIn />;
 
     // If not a student route, show dashboard IF logged in, else login screen
-    if (session) return <TeacherDashboard />;
+    if (session) return <TeacherDashboard userEmail={session.user.email} />;
 
     return <AdminLogin />;
   };

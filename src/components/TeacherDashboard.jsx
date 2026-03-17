@@ -4,13 +4,29 @@ import { supabase } from '../lib/supabase';
 import * as XLSX from 'xlsx';
 import { QRCodeCanvas } from 'qrcode.react';
 
-const TeacherDashboard = () => {
+const TeacherDashboard = ({ userEmail }) => {
     const [attendances, setAttendances] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showQRModal, setShowQRModal] = useState(false);
     const [selectedProfesor, setSelectedProfesor] = useState('Todos');
 
-    const profesores = ['Todos', 'Maria Clara', 'Nahuel Muñoz Storni'];
+    const userInfo = {
+        'mariadanzaclara@gmail.com': { name: 'Maria Clara', role: 'admin' },
+        'nahmustordelta@gmail.com': { name: 'Nahuel Muñoz Storni', role: 'teacher' }
+    };
+
+    // Fallback to admin if email not found for now (or could be teacher)
+    const currentUser = userInfo[userEmail] || { name: 'Maria Clara', role: 'admin' };
+    const isAdmin = currentUser.role === 'admin';
+
+    // Set initial filter to their own name if they are a teacher
+    useEffect(() => {
+        if (!isAdmin) {
+            setSelectedProfesor(currentUser.name);
+        }
+    }, [isAdmin, currentUser.name]);
+
+    const profesores = isAdmin ? ['Todos', 'Maria Clara', 'Nahuel Muñoz Storni'] : [currentUser.name];
 
     const fetchAttendances = async () => {
         setLoading(true);
@@ -28,7 +44,11 @@ const TeacherDashboard = () => {
                 .lt('created_at', tomorrow.toISOString())
                 .order('created_at', { ascending: false });
 
-            if (selectedProfesor !== 'Todos') {
+            if (!isAdmin) {
+                // Teachers only see their own classes
+                query = query.eq('profesor', currentUser.name);
+            } else if (selectedProfesor !== 'Todos') {
+                // Admins see all, but can filter
                 query = query.eq('profesor', selectedProfesor);
             }
 
@@ -89,7 +109,9 @@ const TeacherDashboard = () => {
                 .lt('created_at', endOfMonth.toISOString())
                 .order('created_at', { ascending: true });
 
-            if (selectedProfesor !== 'Todos') {
+            if (!isAdmin) {
+                query = query.eq('profesor', currentUser.name);
+            } else if (selectedProfesor !== 'Todos') {
                 query = query.eq('profesor', selectedProfesor);
             }
 
@@ -185,15 +207,17 @@ const TeacherDashboard = () => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                    <select
-                        value={selectedProfesor}
-                        onChange={(e) => setSelectedProfesor(e.target.value)}
-                        className="px-3 py-2 rounded-lg bg-surface border border-slate-200 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all shadow-sm"
-                    >
-                        {profesores.map(p => (
-                            <option key={p} value={p}>{p}</option>
-                        ))}
-                    </select>
+                    {isAdmin && (
+                        <select
+                            value={selectedProfesor}
+                            onChange={(e) => setSelectedProfesor(e.target.value)}
+                            className="px-3 py-2 rounded-lg bg-surface border border-slate-200 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all shadow-sm"
+                        >
+                            {profesores.map(p => (
+                                <option key={p} value={p}>{p}</option>
+                            ))}
+                        </select>
+                    )}
 
                     <button
                         onClick={fetchAttendances}
@@ -281,7 +305,7 @@ const TeacherDashboard = () => {
                                     size={300}
                                     level="H"
                                     imageSettings={{
-                                        src: "/bailarina_nueva.png",
+                                        src: selectedProfesor === 'Nahuel Muñoz Storni' ? "/iconocanto.jpg" : "/bailarina_nueva.png",
                                         x: undefined,
                                         y: undefined,
                                         height: 80,

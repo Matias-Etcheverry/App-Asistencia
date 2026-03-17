@@ -15,7 +15,8 @@ const StudentCheckIn = () => {
             'Elongación Consciente'
         ],
         'Nahuel Muñoz Storni': [
-            'Canto'
+            'Canto',
+            'vientos de tarde'
         ]
     };
 
@@ -84,24 +85,6 @@ const StudentCheckIn = () => {
                 </div>
 
                 <div className="space-y-2 relative">
-                    <label className="text-sm font-medium text-text-main">Clase</label>
-                    <div className="relative">
-                        <select
-                            required
-                            value={selectedClass}
-                            onChange={(e) => setSelectedClass(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl bg-surface border border-slate-200 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all shadow-sm appearance-none text-text-main"
-                        >
-                            <option value="" disabled>Selecciona tu clase...</option>
-                            {classes.map((c) => (
-                                <option key={c} value={c}>{c}</option>
-                            ))}
-                        </select>
-                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
-                    </div>
-                </div>
-
-                <div className="space-y-2 relative">
                     <label className="text-sm font-medium text-text-main">Profesor</label>
                     <div className="relative">
                         <select
@@ -113,6 +96,24 @@ const StudentCheckIn = () => {
                             <option value="" disabled>Selecciona a tu profesor...</option>
                             {profesores.map((p) => (
                                 <option key={p} value={p}>{p}</option>
+                            ))}
+                        </select>
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
+                    </div>
+                </div>
+
+                <div className="space-y-2 relative">
+                    <label className="text-sm font-medium text-text-main">Clase</label>
+                    <div className="relative">
+                        <select
+                            required
+                            value={selectedClass}
+                            onChange={(e) => setSelectedClass(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl bg-surface border border-slate-200 focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all shadow-sm appearance-none text-text-main"
+                        >
+                            <option value="" disabled>Selecciona tu clase...</option>
+                            {classes.map((c) => (
+                                <option key={c} value={c}>{c}</option>
                             ))}
                         </select>
                         <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
