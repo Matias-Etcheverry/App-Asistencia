@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, RefreshCcw, Users, QrCode, X } from 'lucide-react';
+import { Download, RefreshCcw, Users, QrCode, X, ExternalLink } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import * as XLSX from 'xlsx';
 import { QRCodeCanvas } from 'qrcode.react';
@@ -242,6 +242,26 @@ const TeacherDashboard = ({ userEmail }) => {
                     </button>
                 </div>
             </div>
+
+            {(isAdmin || selectedProfesor === 'Nahuel Muñoz Storni') && (
+                <div className="mb-6 bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="text-sm">
+                        <span className="font-semibold text-slate-700 block mb-1">Planillas de Google Drive:</span>
+                        <span className="text-slate-500 text-xs text-balance">Las asistencias mensuales automatizadas.</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2 w-full md:w-auto">
+                        <a href="https://docs.google.com/spreadsheets/d/1-X7DSsWv-4n3063KIs9n_MVDF-JxfjS-Uv0zOEwOTi4/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:border-green-500 hover:text-green-600 transition-colors text-sm font-medium text-slate-600 shadow-sm">
+                            <ExternalLink size={14} /> Canto y Respiro
+                        </a>
+                        <a href="https://docs.google.com/spreadsheets/d/1mmXNpRDBnpmc6CC3NnHeufnrXIRjRpbHdH_xlukQnOo/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:border-green-500 hover:text-green-600 transition-colors text-sm font-medium text-slate-600 shadow-sm">
+                            <ExternalLink size={14} /> Vientos de Tarde
+                        </a>
+                        <a href="https://docs.google.com/spreadsheets/d/1TzieyQvF-TeUOo4CPfLYS_ml0806P5ly0ncMh3TRc7g/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg hover:border-green-500 hover:text-green-600 transition-colors text-sm font-medium text-slate-600 shadow-sm">
+                            <ExternalLink size={14} /> Coro Municipal
+                        </a>
+                    </div>
+                </div>
+            )}
 
             <div className="overflow-x-auto rounded-xl bg-surface border border-slate-200 shadow-sm">
                 <table className="w-full text-left border-collapse">

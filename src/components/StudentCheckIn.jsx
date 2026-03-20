@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, User, ChevronDown } from 'lucide-react';
+import { Send, User, ChevronDown, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const StudentCheckIn = () => {
@@ -8,6 +8,13 @@ const StudentCheckIn = () => {
     const [selectedProfesor, setSelectedProfesor] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
+    const [showWhatsappModal, setShowWhatsappModal] = useState(false);
+
+    const whatsappLinks = {
+        'Canto y Respirazon TIZON': 'https://chat.whatsapp.com/HbUARBxLvsA8nnXUMeimuV?mode=gi_t',
+        'Vientos de Tarde': 'https://chat.whatsapp.com/FQzFMvHQ25R7SJ364X6HOm?mode=gi_t',
+        'Coro Municipal': 'https://chat.whatsapp.com/Ki5oNt0Okwm78HckBLOTOP?mode=hqctqta'
+    };
 
     const teacherData = {
         'Maria Clara': [
@@ -15,8 +22,8 @@ const StudentCheckIn = () => {
             'Elongación Consciente'
         ],
         'Nahuel Muñoz Storni': [
-            'Canto',
-            'Viento de Tarde',
+            'Canto y Respirazon TIZON',
+            'Vientos de Tarde',
             'Coro Municipal'
         ]
     };
@@ -41,16 +48,35 @@ const StudentCheckIn = () => {
         setMessage('');
 
         try {
+            // Check if it's the first time before inserting
+            let isFirstTime = false;
+            if (selectedProfesor === 'Nahuel Muñoz Storni' && whatsappLinks[selectedClass]) {
+                const { count, error: countError } = await supabase
+                    .from('asistencias')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('nombre_alumno', name.trim())
+                    .eq('clase', selectedClass)
+                    .eq('profesor', selectedProfesor);
+                
+                if (!countError && count === 0) {
+                    isFirstTime = true;
+                }
+            }
+
             const { error } = await supabase
                 .from('asistencias')
                 .insert([
-                    { nombre_alumno: name, clase: selectedClass, profesor: selectedProfesor }
+                    { nombre_alumno: name.trim(), clase: selectedClass, profesor: selectedProfesor }
                 ]);
 
             if (error) throw error;
 
             setMessage('¡Asistencia registrada con éxito! ✨');
             setName('');
+            
+            if (isFirstTime) {
+                setShowWhatsappModal(true);
+            }
             // Optional: reset class if we want, or keep it for the next person
         } catch (error) {
             console.error('Error in CheckIn:', error);
@@ -137,6 +163,32 @@ const StudentCheckIn = () => {
                     : 'bg-red-100/80 text-red-800 border border-red-200/50'
                     }`}>
                     {message}
+                </div>
+            )}
+
+            {showWhatsappModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-surface rounded-2xl p-6 max-w-sm w-full shadow-xl relative animate-fade-in-up">
+                        <button 
+                            onClick={() => setShowWhatsappModal(false)}
+                            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+                        <div className="text-center mt-2">
+                            <h3 className="text-xl font-bold text-text-main mb-2">¡Asistencia registrada!</h3>
+                            <p className="text-slate-600 mb-6 text-sm">Unite al grupo de WhatsApp del taller para mantenerte al tanto de las novedades.</p>
+                            <a 
+                                href={whatsappLinks[selectedClass]} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="w-full py-3 px-4 bg-[#25D366] text-white font-medium rounded-xl hover:bg-[#128C7E] transition-colors flex justify-center items-center gap-2"
+                                onClick={() => setShowWhatsappModal(false)}
+                            >
+                                Unirme al Grupo
+                            </a>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
