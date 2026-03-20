@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, User, ChevronDown, X } from 'lucide-react';
+import { Send, User, ChevronDown, X, Phone } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const StudentCheckIn = () => {
@@ -9,6 +9,8 @@ const StudentCheckIn = () => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
     const [showWhatsappModal, setShowWhatsappModal] = useState(false);
+    const [phone, setPhone] = useState('');
+    const [needsPhone, setNeedsPhone] = useState(false);
 
     const whatsappLinks = {
         'Canto y Respirazon TIZON': 'https://chat.whatsapp.com/HbUARBxLvsA8nnXUMeimuV?mode=gi_t',
@@ -38,7 +40,30 @@ const StudentCheckIn = () => {
         if (classNameFromUrl && classes.includes(classNameFromUrl)) {
             setSelectedClass(classNameFromUrl);
         }
-    }, []);
+    }, [classes]);
+
+    // Check dynamically if it's the student's first time
+    useEffect(() => {
+        const checkFirstTime = async () => {
+            if (name.trim().length > 2 && selectedClass && selectedProfesor) {
+                const { count, error } = await supabase
+                    .from('asistencias')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('nombre_alumno', name.trim())
+                    .eq('clase', selectedClass)
+                    .eq('profesor', selectedProfesor);
+                
+                if (!error) {
+                    setNeedsPhone(count === 0);
+                }
+            } else {
+                setNeedsPhone(false);
+            }
+        };
+
+        const debounceTimer = setTimeout(checkFirstTime, 600);
+        return () => clearTimeout(debounceTimer);
+    }, [name, selectedClass, selectedProfesor]);
 
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
@@ -48,35 +73,32 @@ const StudentCheckIn = () => {
         setMessage('');
 
         try {
-            // Check if it's the first time before inserting
-            let isFirstTime = false;
-            if (selectedProfesor === 'Nahuel Muñoz Storni' && whatsappLinks[selectedClass]) {
-                const { count, error: countError } = await supabase
-                    .from('asistencias')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('nombre_alumno', name.trim())
-                    .eq('clase', selectedClass)
-                    .eq('profesor', selectedProfesor);
-                
-                if (!countError && count === 0) {
-                    isFirstTime = true;
-                }
+            const insertData = { 
+                nombre_alumno: name.trim(), 
+                clase: selectedClass, 
+                profesor: selectedProfesor 
+            };
+
+            if (needsPhone && phone.trim()) {
+                insertData.telefono = phone.trim();
             }
 
             const { error } = await supabase
                 .from('asistencias')
-                .insert([
-                    { nombre_alumno: name.trim(), clase: selectedClass, profesor: selectedProfesor }
-                ]);
+                .insert([insertData]);
 
             if (error) throw error;
 
             setMessage('¡Asistencia registrada con éxito! ✨');
-            setName('');
             
-            if (isFirstTime) {
+            if (needsPhone && selectedProfesor === 'Nahuel Muñoz Storni' && whatsappLinks[selectedClass]) {
                 setShowWhatsappModal(true);
             }
+
+            setName('');
+            setPhone('');
+            setNeedsPhone(false);
+            
             // Optional: reset class if we want, or keep it for the next person
         } catch (error) {
             console.error('Error in CheckIn:', error);
@@ -146,6 +168,22 @@ const StudentCheckIn = () => {
                         <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
                     </div>
                 </div>
+
+                {needsPhone && (
+                    <div className="space-y-2 animate-fade-in-up">
+                        <label className="text-sm font-medium text-accent flex items-center gap-2">
+                            <Phone size={16} /> Al parecer es tu primera clase. ¡Dejanos tu celular!
+                        </label>
+                        <input
+                            type="tel"
+                            required
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl bg-surface border border-green-300 focus:outline-none focus:ring-2 focus:ring-green-400/50 transition-all shadow-sm text-text-main"
+                            placeholder="Ej. 388 123 4567"
+                        />
+                    </div>
+                )}
 
                 <button
                     type="submit"
